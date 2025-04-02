@@ -223,16 +223,16 @@ def swith_capacities():
         logging.error(f'Erro ao alternar lotação! {err}')
         exit()
 
-def search_process(processo):
+def search_process(process):
     quit_frame()
     enter_frame()
     enter_iframe()
     click_element('processoBusca')
 
-    print(f"Robô atuando no processo {processo}")
-    logging.info(f"Robô atuando no processo {processo}")
+    print(f"Robô atuando no processo {process}")
+    logging.info(f"Robô atuando no processo {process}")
 
-    bot.paste(processo)
+    bot.paste(process)
     bot.enter()
     bot.enter()
 
@@ -240,8 +240,17 @@ def search_process(processo):
     error = bot.find_element('errorMessages', By.ID, waiting_time=2000)
     
     if error:
-        register_log(f"Erro ao pesquisar o processo: {processo}")
-        print(f"Erro ao pesquisar o processo: {processo}")
+        register_log(f"Erro ao pesquisar o processo: {process}")
+        print(f"Erro ao pesquisar o processo: {process}")
+
+        return False
+    
+    # verifica se há o quadro de "ATENÇÃO"
+    warning = verify_warning()
+
+    if warning:
+        register_log(f"Processo barrado: {process}")
+        print(f"Processo barrado: {process}")
 
         return False
     
@@ -249,8 +258,8 @@ def search_process(processo):
     pending = verify_pending()
 
     if pending:
-        register_log(f"Pendência no processo: {processo}")
-        print(f"Pendência no processo: {processo}")
+        register_log(f"Pendência no processo: {process}")
+        print(f"Pendência no processo: {process}")
 
         return False
     
@@ -258,7 +267,11 @@ def search_process(processo):
 
 def verify_pending():
     click_element('quadroFilas')
-    return bot.find_element('//label[contains(text(), "Restrição à Movimentação:")]', By.XPATH, waiting_time=1000)
+    return bot.find_element('//label[contains(text(), "Restrição à Movimentação:")]', By.XPATH, waiting_time=2000)
+
+def verify_warning():
+    # click_element('warningMessages')
+    return bot.find_element('warningMessages', By.ID, waiting_time=2000)
 
 ### LOGIN ###
 
@@ -333,6 +346,81 @@ def get_Cc():
 
     return cc
 
+### FUNCTIONS TO USE IN main() ###
+
+def search_advanced_button():
+    quit_frame()
+    enter_frame()
+
+    click_element("Stm0p0i1eTX")
+    click_element("Stm0p1i8TRR")
+    click_element("Stm0p3i1TRR")
+
+    quit_frame()
+
+def config_forms():
+    enter_frame()
+    enter_iframe()
+
+    first_select = get_field('codVara')
+    first_select = element_as_select(first_select)
+    first_select.select_by_index(index=1)
+
+    second_select = get_field('idLocalizador')
+    second_select = element_as_select(second_select)
+    second_select.select_by_visible_text(text="ROBÔ - Aguardando Trânsito em Julgado")
+
+    click_element("pesquisar")
+
+    quit_frame()
+
+def copy_all_processes_id():
+    enter_frame()
+    enter_iframe()
+
+    ids = get_elements("em", by=By.TAG_NAME)
+    list_ids = [element.text for element in ids]
+    print(f"\nFirst 20 IDs: {list_ids}\n")
+
+    while True:
+        next_page = bot.find_element(selector='arrowNextOn', by=By.CLASS_NAME, waiting_time=2000)
+        if not next_page:
+            break # finished while loop
+            
+        else:
+            next_page.click()
+            
+            ids = get_elements("em", by=By.TAG_NAME)
+            new_ids = [element.text for element in ids]
+            print(f'Inserting new processes ID: {new_ids}\n')
+            
+            list_ids.extend(new_ids)
+
+    quit_frame()
+    
+    return list_ids
+    
+
+def intimate_each_process(listID):
+    enter_frame()
+    enter_iframe()
+
+    for id in range(0, len(listID)):
+        process = search_process(listID[id])
+
+        if process is False:
+            print("Processo com Restrição. Próximo!")
+
+        else:
+            bot.scroll_down(clicks=4)
+            click_element(
+                '/html/body/div[1]/div[2]/form/fieldset/table[3]/tbody/tr[2]/td/div/div/div/table/tbody/tr[1]/td[4]/b/a',
+                by=By.XPATH    
+            )
+
+            # click_element('movimentarButton')
+            # click_element('//*[@id="movimentarProcessoForm"]/fieldset/table[2]/tbody/tr/td[1]/a[1]', By.XPATH)
+
 ### PRINCIPAL FUNCTION ###
 
 def main():
@@ -363,75 +451,31 @@ def main():
         number_capacity = get_capacity(i)
 
         logging.info(f'Acessando lotação {number_capacity}!')
-        register_log(f"Acessando lotação {number_capacity}")
+        register_log(f"Acessando lotação {number_capacity}!")
 
         # start_procedures() --> equivalent to the main() function
 
         # Search Advanced button #
-        quit_frame()
-        enter_frame()
-
-        click_element("Stm0p0i1eTX")
-        click_element("Stm0p1i8TRR")
-        click_element("Stm0p3i1TRR")
-
-        quit_frame()
+        search_advanced_button()
 
         # Configuration Forms #
-        enter_frame()
-        enter_iframe()
-
-        first_select = get_field('codVara')
-        first_select = element_as_select(first_select)
-        first_select.select_by_index(index=1)
-
-        second_select = get_field('idLocalizador')
-        second_select = element_as_select(second_select)
-        # second_select.select_by_visible_text(text="ROBÔ - Citação on Line")
-        second_select.select_by_visible_text(text="ROBÔ - Aguardando Trânsito em Julgado")
-        # second_select.select_by_visible_text(text="Sem Localizador Atribuído")
-
-        click_element("pesquisar")
-
-        quit_frame()
+        config_forms()
 
         # Copy all Processes ID #
-        enter_frame()
-        enter_iframe()
-
-        elements = get_elements("em", by=By.TAG_NAME)
-        list_ids = [element.text for element in elements]
-
-        print(f"\nFirst 20 IDs: {list_ids}\n")
-
-        while True:
-            next_page = bot.find_element(selector='arrowNextOn', by=By.CLASS_NAME, waiting_time=2000)
-
-            if not next_page:
-                break # finished while loop
-                
-            else:
-                next_page.click()
-                bot.wait(2000) # loading <em> elements
-
-                elements = get_elements("em", by=By.TAG_NAME)
-                new_ids = [element.text for element in elements]
-                
-                print(f'Inserting new processes ID: {new_ids}\n')
-                
-                list_ids.extend(new_ids)
-        
-        quit_frame()
+        list_ids = copy_all_processes_id()
 
         # Search Process by Process #
-
-        # Change Court
+        intimate_each_process(listID=list_ids)
+                
+        del list_ids # "empty" the list content
         
+        # Change Court
         logging.info(f'Encerrando acesso lotação {number_capacity}!')
-        register_log(f"Encerrando acesso lotação {number_capacity}")
+        register_log(f"Encerrando acesso lotação {number_capacity}!")
         
         swith_capacities()
-    
+        # End RPA
+        
     # remove_downloads()
     # send_log_email()
     move_files()

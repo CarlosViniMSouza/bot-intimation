@@ -4,16 +4,6 @@ from botcity.web import By
 from src.frames import enter_frame, enter_iframe, enter_iframeId, quit_frame
 from src.files import register_log
 
-from src.config import config_botweb
-
-bot = config_botweb()
-logging.basicConfig(
-    filename='templateProjudi.log', 
-    encoding='utf-8', 
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
-
 def open_projudi(bot):
     HML = "http://10.47.76.126:8082/projudi/"
     #HML = "http://10.47.60.136:8082/projudi/"
@@ -52,16 +42,16 @@ def swith_capacities():
         logging.error(f'Erro ao alternar lotação! {err}')
         exit()
 
-def search_process(processo):
+def search_process(bot, process):
     quit_frame()
     enter_frame()
     enter_iframe()
     click_element('processoBusca')
 
-    print(f"Robô atuando no processo {processo}")
-    logging.info(f"Robô atuando no processo {processo}")
+    print(f"Robô atuando no processo {process}")
+    logging.info(f"Robô atuando no processo {process}")
 
-    bot.paste(processo)
+    bot.paste(process)
     bot.enter()
     bot.enter()
 
@@ -69,8 +59,8 @@ def search_process(processo):
     error = bot.find_element('errorMessages', By.ID, waiting_time=2000)
     
     if error:
-        register_log(f"Erro ao pesquisar o processo: {processo}")
-        print(f"Erro ao pesquisar o processo: {processo}")
+        register_log(f"Erro ao pesquisar o processo: {process}")
+        print(f"Erro ao pesquisar o processo: {process}")
 
         return False
     
@@ -78,13 +68,13 @@ def search_process(processo):
     pending = verify_pending()
 
     if pending:
-        register_log(f"Pendência no processo: {processo}")
-        print(f"Pendência no processo: {processo}")
+        register_log(f"Pendência no processo: {process}")
+        print(f"Pendência no processo: {process}")
 
         return False
     
     return True
 
-def verify_pending():
+def verify_pending(bot):
     click_element('quadroFilas')
     return bot.find_element('//label[contains(text(), "Restrição à Movimentação:")]', By.XPATH, waiting_time=1000)

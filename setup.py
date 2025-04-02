@@ -25,13 +25,13 @@ def setup():
     logging.info('Iniciando execução!')
 
     try:
-        open_projudi()
+        open_projudi(bot=bot_web)
 
     except Exception as err:
         logging.error(f'Erro abrir o Projudi! {err}')
         exit()
 
-    login()
+    login(bot=bot_web)
     create_directory()
 
     try:
@@ -49,7 +49,7 @@ def setup():
         number_capacity = get_capacity(i)
 
         logging.info(f'Acessando lotação {number_capacity}!')
-        register_log(f"Acessando lotação {number_capacity}")
+        register_log(f"Acessando lotação {number_capacity}!")
 
         # start_procedures() --> equivalent to the main() function
         

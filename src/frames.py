@@ -1,23 +1,20 @@
 from botcity.web import By
 
 from src.getters import get_field
-from src.config import config_botweb
 
-bot = config_botweb()
-
-def enter_frame():
+def enter_frame(bot):
     frame = get_field('mainFrame')
     bot.enter_iframe(frame)
 
-def enter_iframe():
+def enter_iframe(bot):
     iframe = get_field('userMainFrame', By.NAME)
     bot.enter_iframe(iframe)
 
-def enter_iframeId():
+def enter_iframeId(bot):
     iframe = get_field('//iframe[contains(@name,"window")]', By.XPATH)
     bot.enter_iframe(iframe)
 
-def quit_frame():
+def quit_frame(bot):
     bot.leave_iframe()
 
 def start_procedures():

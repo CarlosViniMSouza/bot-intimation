@@ -5,15 +5,6 @@ from os.path import isdir
 
 from src.getters import get_directory, get_current_day
 from src.frames import enter_frame
-from src.config import config_botweb
-
-bot = config_botweb()
-logging.basicConfig(
-    filename='templateProjudi.log', 
-    encoding='utf-8', 
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
 
 def register_log(msg):
     CURRENT_DAY = get_current_day()

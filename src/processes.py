@@ -4,11 +4,8 @@ from botcity.web import By
 from src.actions import click_element
 from src.files import register_log
 from src.frames import enter_frame, enter_iframe, quit_frame
-from src.config import config_botweb
 
-bot = config_botweb()
-
-def search_process(process):
+def search_process(bot, process):
     quit_frame()
     enter_frame()
     enter_iframe()
@@ -41,6 +38,6 @@ def search_process(process):
     
     return True
 
-def verify_pending():
+def verify_pending(bot):
     click_element('quadroFilas')
     return bot.find_element('//label[contains(text(), "Restrição à Movimentação:")]', By.XPATH, waiting_time=1000)
