@@ -1,5 +1,5 @@
 git add -A
-git commit -m "doing: code refactoring | doing: setup.py"
+git commit -m "done: test.py"
 git push -u origin main
 git status
 

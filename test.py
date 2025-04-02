@@ -1,32 +1,34 @@
-from botcity.web import WebBot, Browser, By
+from botcity.web import WebBot, By, Browser
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
+
 import logging
-
 from os import environ
+from dotenv import load_dotenv
 
-from src.actions import open_projudi, swith_capacities
 from src.login import login
-from src.files import create_directory, register_log, move_files
 from src.getters import get_elements, get_capacity
+from src.actions import open_projudi, swith_capacities
+from src.files import create_directory, register_log, move_files
+from src.models import search_advanced_button, config_forms, copy_all_processes_id, intimate_each_process
 
-bot_web = WebBot()
-bot_web.headless = False
-bot_web.browser = Browser.EDGE
-bot_web.driver_path = EdgeChromiumDriverManager().install()
+def main():
+    bot_web = WebBot()
+    bot_web.headless = False
+    bot_web.browser = Browser.EDGE
+    bot_web.driver_path = EdgeChromiumDriverManager().install()
 
-logging.basicConfig(
-    filename='templateProjudi.log', 
-    encoding='utf-8', 
-    level=logging.INFO,
-    format="%(asctime)s - %(levelname)s - %(message)s"
-)
+    logging.basicConfig(
+        filename='templateProjudi.log', 
+        encoding='utf-8', 
+        level=logging.INFO,
+        format="%(asctime)s - %(levelname)s - %(message)s"
+    )
 
-def setup():
     logging.info('Iniciando execução!')
 
     try:
         open_projudi(bot=bot_web)
-
+    
     except Exception as err:
         logging.error(f'Erro abrir o Projudi! {err}')
         exit()
@@ -52,6 +54,20 @@ def setup():
         register_log(f"Acessando lotação {number_capacity}!")
 
         # start_procedures() --> equivalent to the main() function
+
+        # Search Advanced button #
+        search_advanced_button()
+
+        # Configuration Forms #
+        config_forms()
+
+        # Copy all Processes ID #
+        list_ids = copy_all_processes_id()
+
+        # Search Process by Process #
+        intimate_each_process(listID=list_ids)
+                
+        del list_ids # "empty" the list content
         
         logging.info(f'Encerrando acesso lotação {number_capacity}!')
         register_log(f"Encerrando acesso na lotação {number_capacity}")
@@ -65,4 +81,6 @@ def setup():
     logging.info('Execução finalizada com sucesso!')
     bot_web.stop_browser()
 
-setup()
+if __name__ == "__main__":
+    load_dotenv()
+    main()

@@ -1,5 +1,6 @@
 import logging
-from botcity.web import By
+from botcity.web import By # Browser
+# from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
 from src.frames import enter_frame, enter_iframe, enter_iframeId, quit_frame
 from src.files import register_log
