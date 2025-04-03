@@ -4,19 +4,19 @@ from src.frames import enter_frame, quit_frame, enter_iframe
 from src.actions import click_element, search_process
 from src.getters import get_field, get_elements
 
-def search_advanced_button():
-    quit_frame()
-    enter_frame()
+def search_advanced_button(bot):
+    quit_frame(bot)
+    enter_frame(bot)
 
     click_element("Stm0p0i1eTX")
     click_element("Stm0p1i8TRR")
     click_element("Stm0p3i1TRR")
 
-    quit_frame()
+    quit_frame(bot)
 
-def config_forms():
-    enter_frame()
-    enter_iframe()
+def config_forms(bot):
+    enter_frame(bot)
+    enter_iframe(bot)
 
     first_select = get_field('codVara')
     first_select = element_as_select(first_select)
@@ -28,11 +28,11 @@ def config_forms():
 
     click_element("pesquisar")
 
-    quit_frame()
+    quit_frame(bot)
 
 def copy_all_processes_id(bot):
-    enter_frame()
-    enter_iframe()
+    enter_frame(bot)
+    enter_iframe(bot)
 
     ids = get_elements("em", by=By.TAG_NAME)
     list_ids = [element.text for element in ids]
@@ -52,13 +52,13 @@ def copy_all_processes_id(bot):
             
             list_ids.extend(new_ids)
 
-    quit_frame()
+    quit_frame(bot)
     
     return list_ids
     
 def intimate_each_process(bot, listID):
-    enter_frame()
-    enter_iframe()
+    enter_frame(bot)
+    enter_iframe(bot)
 
     for id in range(0, len(listID)):
         process = search_process(listID[id])

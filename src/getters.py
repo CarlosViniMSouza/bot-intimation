@@ -3,7 +3,7 @@ import logging
 from botcity.web import By
 from datetime import date
 
-def get_field(bot, selector, by=By.ID, property = ''):
+def get_field(bot, selector, by=By.ID, property=''):
     try:
         attempts = 20
         found = False
@@ -15,7 +15,7 @@ def get_field(bot, selector, by=By.ID, property = ''):
                 found = True
             else:
                 attempts -= 1
-            
+        
         if property == '':
             return element
         else:
@@ -24,7 +24,7 @@ def get_field(bot, selector, by=By.ID, property = ''):
     except Exception as err:
         logging.error(f'Erro ao obter {selector}! {err}')
 
-def get_elements(bot, selector, by=By.XPATH, property = ''):
+def get_elements(bot, selector, by=By.XPATH, property=''):
     try:
         found = False
         attempts = 20

@@ -31,13 +31,13 @@ def click_element(bot, seletor, by=By.ID):
         logging.error(f'Erro ao clicar no elemento {seletor}! {err}')
         exit()
 
-def swith_capacities():
+def swith_capacities(bot):
     try:
-        quit_frame()
-        enter_frame()
-        enter_iframe()
+        quit_frame(bot)
+        enter_frame(bot)
+        enter_iframe(bot)
         click_element('alterarAreaAtuacao')
-        enter_iframeId()
+        enter_iframeId(bot)
 
     except Exception as err:
         logging.error(f'Erro ao alternar lotação! {err}')

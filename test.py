@@ -1,4 +1,4 @@
-from botcity.web import WebBot, By, Browser
+from botcity.web import WebBot, Browser
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
 import logging
@@ -34,10 +34,10 @@ def main():
         exit()
 
     login(bot=bot_web)
-    create_directory()
+    create_directory(bot=bot_web)
 
     try:
-        capacity = get_elements('//div[@id="listaAreaAtuacaovara"]//li//a', By.XPATH)
+        capacity = get_elements(bot=bot_web, selector='//div[@id="listaAreaAtuacaovara"]//li//a') # by=By.XPATH
         quantity_capacities = len(capacity)
 
     except Exception as err:
@@ -47,8 +47,8 @@ def main():
     start_from = environ["start_from"]
     start_from = int(start_from)
 
-    for i in range(start_from, quantity_capacities+1):
-        number_capacity = get_capacity(i)
+    for num in range(start_from, quantity_capacities+1):
+        number_capacity = get_capacity(num)
 
         logging.info(f'Acessando lotação {number_capacity}!')
         register_log(f"Acessando lotação {number_capacity}!")
@@ -56,23 +56,23 @@ def main():
         # start_procedures() --> equivalent to the main() function
 
         # Search Advanced button #
-        search_advanced_button()
+        search_advanced_button(bot=bot_web)
 
         # Configuration Forms #
         config_forms()
 
         # Copy all Processes ID #
-        list_ids = copy_all_processes_id()
+        list_ids = copy_all_processes_id(bot=bot_web)
 
         # Search Process by Process #
-        intimate_each_process(listID=list_ids)
+        intimate_each_process(bot=bot_web, listID=list_ids)
                 
         del list_ids # "empty" the list content
         
         logging.info(f'Encerrando acesso lotação {number_capacity}!')
         register_log(f"Encerrando acesso na lotação {number_capacity}")
         
-        swith_capacities()
+        swith_capacities(bot=bot_web)
     
     # remove_downloads()
     # send_log_email()

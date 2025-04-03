@@ -13,14 +13,14 @@ def register_log(msg):
     with open(FILE, "a") as file:
         print(msg, file=file)
 
-def create_directory():
+def create_directory(bot):
     try:
         DIRECTORY = get_directory()
 
         if not isdir(DIRECTORY):
             makedirs(DIRECTORY)
         
-        enter_frame()
+        enter_frame(bot)
     
     except Exception as err:
         logging.error(f'Erro ao criar diretório do arquivo de saída para o usuário! {err}')

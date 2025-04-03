@@ -21,8 +21,8 @@ def error_login(bot):
 
 def login(bot):
     try:
-        enter_frame()
-        click_element('login')
+        enter_frame(bot)
+        click_element(bot, 'login')
 
         bot.paste(environ["user"])
         bot.tab()
@@ -32,7 +32,7 @@ def login(bot):
         if error_login(bot):
             exit()
 
-        quit_frame()
+        quit_frame(bot)
 
     except Exception as err:
         logging.error(f'Erro ao efetuar login! {err}')
