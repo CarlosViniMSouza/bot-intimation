@@ -633,6 +633,8 @@ def main():
 
         no_record = no_records()
 
+        print(f"Tipo do record: {no_record}")
+
         if no_record is not None:
             print("Sem registros. Proxima Unidade!")
         else:
