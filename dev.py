@@ -518,7 +518,7 @@ def uncheck_processes(listID):
 
                 print(f"Processo {temp_text} desmarcado")
 
-    quit_frame()
+    # quit_frame()
 
 def insert_files():
     enter_frame()
@@ -535,6 +535,8 @@ def insert_files():
 def fillForms():
     enter_frame()
     enter_iframe()
+
+    click_element("nextButton") # follow File template forms
 
     insert_files() # insert intimation file template
 
@@ -591,6 +593,19 @@ def archivingForms():
     click_element('arquivamentoDefinitivoS') # input-radio for Definitive archiving
     click_element("nextButton") # follow
 
+def error_continue():
+    # enter_frame()
+    # enter_iframe()
+
+    no_records = bot.find_element(
+        '//*[@id="errorMessages"]/div[3]/div/ul/li', 
+        By.XPATH
+    ).text
+
+    # quit_frame()
+
+    return no_records
+
 ### PRINCIPAL FUNCTION ###
 
 def main():
@@ -633,23 +648,13 @@ def main():
 
         no_record = no_records()
 
-        print(f"Tipo do record: {no_record}")
+        if no_record == "Nenhum registro encontrado":
+            print("Sem registros. Proxima Unidade!\n")
 
-        if no_record is not None:
-            print("Sem registros. Proxima Unidade!")
         else:
             # mark all citations in the page #
             mark_all_citations()
 
-        """ 
-        # check if exists records
-        text_empty = no_records()
-
-        print(f"Conteudo da variavel text_empty: {text_empty}")
-
-        if text_empty is not None:
-            print("Sem registros. Proxima Unidade!")
-        else:
             # extract ID processes from warning #
             warning = check_warning_board()
 
@@ -658,25 +663,18 @@ def main():
                 print(f"Processos obtidos: {ids}")
 
                 uncheck_processes(listID=ids) # Search Process by Process
+                click_element('nextButton')
 
             else:
                 print("Quadro de Aviso não Detectado!")
 
-            fillForms()
+            text_error = error_continue()
 
-        warning = check_warning_board()
+            if text_error == "Selecione ao menos um movimento":
+                # enter if unmark all processes
+                click_element('cancelButton') # return to First Forms
 
-        if warning:
-            ids = extract_processes_text()
-            print(f"Processos obtidos: {ids}")
-
-            uncheck_processes(listID=ids) # Search Process by Process
-
-        else:
-            print("Quadro de Aviso não Detectado!")
-
-        fillForms()
-        """
+            # fillForms()
 
         # Change Court
         logging.info(f"Encerrando acesso lotação {number_capacity}!")
