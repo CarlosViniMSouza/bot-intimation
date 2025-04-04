@@ -409,6 +409,19 @@ def mark_all_citations():
     enter_iframe()
 
     click_element('//*[@id="processoBuscaForm"]/table[2]/thead/tr/th[1]/input', By.XPATH)
+
+    while True:
+        next_page = bot.find_element(selector='arrowNextOn', by=By.CLASS_NAME, waiting_time=2000)
+
+        if not next_page:
+            break # finished while loop
+                
+        else:
+            next_page.click()
+            bot.wait(2000) # loading <em> elements
+
+            click_element('//*[@id="processoBuscaForm"]/table[2]/thead/tr/th[1]/input', By.XPATH)
+
     click_element('movimentarEmLoteButton')
 
     dialog = bot.get_js_dialog()
@@ -498,25 +511,37 @@ def uncheck_processes(listID):
     enter_frame()
     enter_iframe()
 
-    for i in range(1, 40, 2):
-        temp_text = bot.find_element(
-            f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[4]/a/em',
-            By.XPATH
-        ).text
+    while True:
+        next_page = bot.find_element(selector='arrowNextOn', by=By.CLASS_NAME, waiting_time=2000)
 
-        if temp_text is None:
-            break # There are no more processes to uncheck
+        if not next_page:
+            break # finished while loop
+                
+        else:
+            # next_page.click()
+            bot.wait(2000) # loading <em> elements
 
-        print(f"Vendo {i}° processo: {temp_text}")
-
-        for processId in listID:
-            if temp_text == processId:
-                click_element(
-                    f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[1]/input',
+            for i in range(1, 40, 2):
+                temp_text = bot.find_element(
+                    f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[4]/a/em',
                     By.XPATH
-                )
+                ).text
 
-                print(f"Processo {temp_text} desmarcado")
+                if temp_text is None:
+                    break # There are no more processes to uncheck
+
+                print(f"Vendo {i}° processo: {temp_text}")
+
+                for processId in listID:
+                    if temp_text == processId:
+                        click_element(
+                            f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[1]/input',
+                            By.XPATH
+                        )
+
+                        print(f"Processo {temp_text} desmarcado")
+            
+            next_page.click()
 
     # quit_frame()
 
