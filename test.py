@@ -1,4 +1,4 @@
-from botcity.web import WebBot, Browser
+from botcity.web import WebBot, Browser, By
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
 import logging
@@ -8,8 +8,9 @@ from dotenv import load_dotenv
 from src.login import login
 from src.getters import get_elements, get_capacity
 from src.actions import open_projudi, swith_capacities
-from src.files import create_directory, register_log, move_files
-from src.models import search_advanced_button, config_forms, copy_all_processes_id, intimate_each_process
+from src.files import create_directory, register_log # move_files
+from src.models import search_advanced_button, config_forms, copy_all_processes_id # intimate_each_process
+from src.frames import enter_frame
 
 def main():
     bot_web = WebBot()
@@ -27,6 +28,7 @@ def main():
     logging.info('Iniciando execução!')
 
     try:
+        create_directory()
         open_projudi(bot=bot_web)
     
     except Exception as err:
@@ -34,10 +36,11 @@ def main():
         exit()
 
     login(bot=bot_web)
-    create_directory(bot=bot_web)
+    # create_directory()
 
     try:
-        capacity = get_elements(bot=bot_web, selector='//div[@id="listaAreaAtuacaovara"]//li//a') # by=By.XPATH
+        enter_frame(bot=bot_web)
+        capacity = get_elements(bot=bot_web, selector='//div[@id="listaAreaAtuacaovara"]//li//a', by=By.XPATH, property='') # by=By.XPATH
         quantity_capacities = len(capacity)
 
     except Exception as err:
@@ -64,8 +67,10 @@ def main():
         # Copy all Processes ID #
         list_ids = copy_all_processes_id(bot=bot_web)
 
+        """
         # Search Process by Process #
         intimate_each_process(bot=bot_web, listID=list_ids)
+        """
                 
         del list_ids # "empty" the list content
         
@@ -76,7 +81,7 @@ def main():
     
     # remove_downloads()
     # send_log_email()
-    move_files()
+    # move_files()
 
     logging.info('Execução finalizada com sucesso!')
     bot_web.stop_browser()

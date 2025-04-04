@@ -4,7 +4,7 @@ from os import makedirs, listdir, rename, remove, path
 from os.path import isdir
 
 from src.getters import get_directory, get_current_day
-from src.frames import enter_frame
+# from src.frames import enter_frame
 
 def register_log(msg):
     CURRENT_DAY = get_current_day()
@@ -13,14 +13,14 @@ def register_log(msg):
     with open(FILE, "a") as file:
         print(msg, file=file)
 
-def create_directory(bot):
+def create_directory():
     try:
         DIRECTORY = get_directory()
 
         if not isdir(DIRECTORY):
             makedirs(DIRECTORY)
         
-        enter_frame(bot)
+        # enter_frame()
     
     except Exception as err:
         logging.error(f'Erro ao criar diretório do arquivo de saída para o usuário! {err}')

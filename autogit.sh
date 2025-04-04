@@ -1,5 +1,5 @@
 git add -A
-git commit -m "done: edit models.py"
+git commit -m "to-do: code refactoring"
 git push -u origin main
 git status
 

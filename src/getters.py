@@ -39,6 +39,7 @@ def get_elements(bot, selector, by=By.XPATH, property=''):
         
         if property == '':
             return elements
+        
         else:
             elements_property = []
         

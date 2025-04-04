@@ -449,18 +449,14 @@ def no_records():
     enter_frame()
     enter_iframe()
 
-    try:
-        text_no_records = get_content(
-            '//*[@id="processoBuscaForm"]/table[2]/tbody/tr/td', 
-            By.XPATH
-        )
+    no_records = bot.find_element(
+        '//*[@id="processoBuscaForm"]/table[2]/tbody/tr/td', 
+        By.XPATH
+    ).text
 
-        quit_frame()
+    quit_frame()
 
-        return text_no_records
-
-    except Exception as ex:
-        print(ex)
+    return no_records
 
 def intimate_each_process(listID):
     enter_frame()
@@ -635,8 +631,13 @@ def main():
         # Configuration Forms #
         config_forms()
 
-        # mark all citations in the page #
-        mark_all_citations()
+        no_record = no_records()
+
+        if no_record is not None:
+            print("Sem registros. Proxima Unidade!")
+        else:
+            # mark all citations in the page #
+            mark_all_citations()
 
         """ 
         # check if exists records
@@ -660,7 +661,6 @@ def main():
                 print("Quadro de Aviso não Detectado!")
 
             fillForms()
-        """
 
         warning = check_warning_board()
 
@@ -674,6 +674,7 @@ def main():
             print("Quadro de Aviso não Detectado!")
 
         fillForms()
+        """
 
         # Change Court
         logging.info(f"Encerrando acesso lotação {number_capacity}!")

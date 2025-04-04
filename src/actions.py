@@ -79,3 +79,7 @@ def search_process(bot, process):
 def verify_pending(bot):
     click_element('quadroFilas')
     return bot.find_element('//label[contains(text(), "Restrição à Movimentação:")]', By.XPATH, waiting_time=1000)
+
+def verify_warning(bot):
+    click_element('warningMessages')
+    return bot.find_element('//*[@id="errorMessages"]', By.XPATH, waiting_time=2000)
