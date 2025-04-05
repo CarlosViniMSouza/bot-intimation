@@ -453,6 +453,8 @@ def extract_processes_text():
 
         quit_frame()
 
+        print(f"Quant. processos a desmarcar: {len(process_ids_list)}")
+
         return process_ids_list
 
     except Exception as ex:
@@ -511,39 +513,83 @@ def uncheck_processes(listID):
     enter_frame()
     enter_iframe()
 
-    while True:
-        next_page = bot.find_element(selector='arrowNextOn', by=By.CLASS_NAME, waiting_time=2000)
+    try:
+        table = bot.find_element(
+            '//*[@id="movimentacaoMultiplaForm"]/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody', 
+            By.XPATH
+        )
 
-        if not next_page:
-            break # finished while loop
-                
-        else:
-            # next_page.click()
-            bot.wait(2000) # loading <em> elements
+        # Count <tr> tags in table
+        tr_tags = table.find_elements_by_tag_name("tr")
+        length_table = len(tr_tags)
 
-            for i in range(1, 40, 2):
-                temp_text = bot.find_element(
-                    f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[4]/a/em',
+        for i in range(1, length_table, 2):
+            temp_text = bot.find_element(
+                f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[4]/a/em',
+                By.XPATH
+            ).text
+
+            if temp_text is None:
+                break # There are no more processes to uncheck
+
+            print(f"Vendo {i}° processo: {temp_text}")
+
+            for processId in listID:
+                if temp_text == processId:
+                    click_element(
+                        f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[1]/input',
+                        By.XPATH
+                    )
+
+            print(f"Processo {temp_text} desmarcado")
+        
+        while True:
+            next_page = bot.find_element(
+                selector='arrowNextOn', 
+                by=By.CLASS_NAME, 
+                waiting_time=2000
+            )
+
+            if next_page is None:
+                break
+            else:
+                next_page.click()
+
+                table = bot.find_element(
+                    '//*[@id="movimentacaoMultiplaForm"]/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody', 
                     By.XPATH
-                ).text
+                )
 
-                if temp_text is None:
-                    break # There are no more processes to uncheck
+                # Count <tr> tags in table
+                tr_tags = table.find_elements_by_tag_name("tr")
+                length_table = len(tr_tags)
 
-                print(f"Vendo {i}° processo: {temp_text}")
+                bot.wait(2000)
 
-                for processId in listID:
-                    if temp_text == processId:
-                        click_element(
-                            f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[1]/input',
-                            By.XPATH
-                        )
+                for i in range(1, length_table, 2):
+                    temp_text = bot.find_element(
+                        f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[4]/a/em',
+                        By.XPATH
+                    ).text
 
-                        print(f"Processo {temp_text} desmarcado")
-            
-            next_page.click()
+                    if temp_text is None:
+                        break # There are no more processes to uncheck
 
-    # quit_frame()
+                    print(f"Vendo {i}° processo: {temp_text}")
+
+                    for processId in listID:
+                        if temp_text == processId:
+                            click_element(
+                                f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[1]/input',
+                                By.XPATH
+                            )
+
+                    print(f"Processo {temp_text} desmarcado")
+    
+    except Exception as ex:
+        print(ex)
+        click_element('nextButton')
+        # quit_frame() # finish Input forms
 
 def insert_files():
     enter_frame()
@@ -558,12 +604,13 @@ def insert_files():
     quit_frame()
 
 def fillForms():
+    quit_frame()
     enter_frame()
     enter_iframe()
 
     click_element("nextButton") # follow File template forms
 
-    insert_files() # insert intimation file template
+    #TODO insert_files() # insert intimation file template
 
     click_element("nextButton") # follow Intimation forms
 
@@ -688,18 +735,21 @@ def main():
                 print(f"Processos obtidos: {ids}")
 
                 uncheck_processes(listID=ids) # Search Process by Process
-                click_element('nextButton')
 
             else:
                 print("Quadro de Aviso não Detectado!")
 
+            """
             text_error = error_continue()
 
             if text_error == "Selecione ao menos um movimento":
                 # enter if unmark all processes
                 click_element('cancelButton') # return to First Forms
+            else:
+                print("Sem problemas com os processos seleciondos!")
+            """
 
-            # fillForms()
+            fillForms()
 
         # Change Court
         logging.info(f"Encerrando acesso lotação {number_capacity}!")
