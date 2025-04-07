@@ -3,12 +3,11 @@ from botcity.plugins.email import BotEmailPlugin
 from botcity.web.util import element_as_select
 from webdriver_manager.microsoft import EdgeChromiumDriverManager
 
-import logging
+import logging, re, os, shutil
 from os import makedirs, listdir, rename, environ, path, remove
 from os.path import isdir
 from dotenv import load_dotenv
 from datetime import date
-import re
 
 bot = WebBot()
 logging.basicConfig(
@@ -18,10 +17,11 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
-
 ### GETTERS ###
 
 def get_field(selector, by=By.ID, property=''):
+    global element
+
     try:
         attempts = 20
         found = False
@@ -46,8 +46,8 @@ def get_field(selector, by=By.ID, property=''):
     except Exception as err:
         logging.error(f'Erro ao obter {selector}! {err}')
 
-
 def get_elements(selector, by=By.XPATH, property=''):
+    global elements
     try:
         found = False
         attempts = 20
@@ -65,8 +65,8 @@ def get_elements(selector, by=By.XPATH, property=''):
         else:
             elements_property = []
 
-            for element in elements:
-                value = element.get_property(property)
+            for obj in elements:
+                value = obj.get_property(property)
 
                 if type(value) is str:
                     value = value.strip()
@@ -79,16 +79,14 @@ def get_elements(selector, by=By.XPATH, property=''):
         logging.error(f'Erro ao buscar os elementos! {err}')
         exit()
 
-
-def get_content(element, property='textContent'):
+def get_content(obj, property='textContent'):
     try:
-        value = element.get_property(property)
+        value = obj.get_property(property)
         return value.strip()
 
     except Exception as err:
-        logging.error(f'Erro ao obter {property} do element {element}! {err}')
+        logging.error(f'Erro ao obter {property} do element {obj}! {err}')
         exit()
-
 
 def get_capacity(index):
     try:
@@ -105,15 +103,12 @@ def get_capacity(index):
         logging.error(f'Erro ao obter lotação! {err}')
         exit()
 
-
 def get_current_day():
     return str(date.today())
-
 
 def get_directory():
     data = get_current_day()
     return './logging/' + data
-
 
 ### FRAMES ###
 
@@ -121,30 +116,16 @@ def enter_frame():
     frame = get_field('mainFrame')
     bot.enter_iframe(frame)
 
-
 def enter_iframe():
     iframe = get_field('userMainFrame', By.NAME)
     bot.enter_iframe(iframe)
-
 
 def enter_iframeId():
     iframe = get_field('//iframe[contains(@name,"window")]', By.XPATH)
     bot.enter_iframe(iframe)
 
-
 def quit_frame():
     bot.leave_iframe()
-
-
-"""
-def start_procedures():
-    # TO DO
-    quit_frame()
-    enter_frame()
-    # build your logical reasoning #
-    enter_iframe()
-"""
-
 
 ### FILES ###
 
@@ -154,7 +135,6 @@ def register_log(msg):
 
     with open(FILE, "a") as file:
         print(msg, file=file)
-
 
 def create_directory():
     try:
@@ -169,7 +149,6 @@ def create_directory():
         logging.error(f'Erro ao criar diretório do arquivo de saída para o usuário! {err}')
         exit()
 
-
 def move_files():
     DIRECTORY = get_directory()
     CURRENT_DAY = get_current_day()
@@ -178,12 +157,11 @@ def move_files():
     file_log = CURRENT_DAY + ' - log_operacao.txt'
 
     for file in list_files:
-        if (".pdf") in file:
+        if ".pdf" in file:
             rename(f"./{file}", f"{DIRECTORY}/{file}")
 
         if file_log in file:
             rename(f"./{file}", f"{DIRECTORY}/{file}")
-
 
 def remove_downloads():
     try:
@@ -205,6 +183,23 @@ def remove_downloads():
         logging.error(f'Erro ao excluir arquivos! {err}')
         exit()
 
+def delete_files():
+    CURRENT_DAY = get_current_day()
+    FILE = CURRENT_DAY + ' - log_operacao.txt'
+
+    if os.path.exists(r".\templateProjudi.log"):
+        os.remove(r".\templateProjudi.log")
+
+    else:
+        print("The file does not exist")
+
+    if os.path.exists(rf".\{FILE}"):
+        os.remove(rf".\{FILE}")
+
+    else:
+        print("The file does not exist")
+
+    shutil.rmtree(r".\logging")
 
 ### ACTIONS ###
 
@@ -219,21 +214,20 @@ def open_projudi():
     bot.browse(HML)
     bot.maximize_window()
 
-
 def click_element(selector, by=By.ID):
     try:
         attempts = 20
         found = False
 
         while not found and attempts > 0:
-            element = bot.find_element(
+            obj = bot.find_element(
                 selector,
                 by,
                 ensure_clickable=True
             )
 
-            if element:
-                element.click()
+            if obj:
+                obj.click()
                 found = True
             else:
                 attempts -= 1
@@ -241,7 +235,6 @@ def click_element(selector, by=By.ID):
     except Exception as err:
         logging.error(f'Erro ao clicar no elemento {selector}! {err}')
         exit()
-
 
 def swith_capacities():
     try:
@@ -255,70 +248,6 @@ def swith_capacities():
     except Exception as err:
         logging.error(f'Erro ao alternar lotação! {err}')
         exit()
-
-
-def search_process(process):
-    quit_frame()
-    enter_frame()
-    enter_iframe()
-    click_element('processoBusca')
-
-    print(f"Robô atuando no processo {process}")
-    logging.info(f"Robô atuando no processo {process}")
-
-    bot.paste(process)
-    bot.enter()
-    bot.enter()
-
-    # verifica se o processo foi encontrado
-    error = bot.find_element('errorMessages', By.ID, waiting_time=2000)
-
-    if error:
-        register_log(f"Erro ao pesquisar o processo: {process}")
-        print(f"Erro ao pesquisar o processo: {process}")
-
-        return False
-
-    # verifica se há o quadro de "ATENÇÃO"
-    warning = verify_warning()
-
-    if warning:
-        register_log(f"Processo barrado: {process}")
-        print(f"Processo barrado: {process}")
-
-        return False
-
-    # verifica se existe pendência no processo
-    pending = verify_pending()
-
-    if pending:
-        register_log(f"Pendência no processo: {process}")
-        print(f"Pendência no processo: {process}")
-
-        return False
-
-    return True
-
-
-def verify_pending():
-    click_element('quadroFilas')
-
-    return bot.find_element(
-        '//label[contains(text(), "Restrição à Movimentação:")]',
-        By.XPATH,
-        waiting_time=2000
-    )
-
-
-def verify_warning():
-    click_element('warningMessages')
-
-    return bot.find_element(
-        '//*[@id="errorMessages"]',
-        By.XPATH,
-        waiting_time=2000
-    )
-
 
 ### LOGIN ###
 
@@ -339,8 +268,9 @@ def login():
 
     except Exception as err:
         logging.error(f'Erro ao efetuar login! {err}')
-        exit()
+        register_log(f'Erro ao efetuar login! {err}')
 
+        exit()
 
 def error_login():
     try:
@@ -349,58 +279,45 @@ def error_login():
             By.ID,
             waiting_time=2000
         ).click()
+
         logging.error('Erro ao efetuar login!')
+        register_log('Erro ao efetuar login!')
 
         return True
 
     except Exception as err:
-        logging.info('Login efetuado com sucesso!')
         print(err)
+
+        logging.info(f'Login efetuado com sucesso!')
+        register_log(f'Login efetuado com sucesso!')
 
         return False
 
-
 ### EMAIL ###
 
-def send_log_email():
-    credentials = './gmail.json'
-    gmail = BotEmailPlugin(credentials, environ["sender"])
-    bcc = get_Bcc()
-    to = get_Cc()
+def send_email_attachment():
+    email = BotEmailPlugin()
 
-    subject = "Teste e-mail"
-    body = "Teste de e-mail!\nFavor não responder."
-    files = []
+    email.configure_imap("imap.gmail.com", 993)
+    email.configure_smtp(host_address="smtp.gmail.com", port=587)
+    email.login(email="botcityifam@gmail.com", password="licp pjdk zdet japu")
 
-    gmail.send_message(
-        subject, body, to,
-        bcc_addrs=bcc,
-        attachments=files,
-        use_html=False
-    )
+    # DIRECTORY = get_directory()
+    CURRENT_DAY = get_current_day()
 
+    # list_files = listdir(f'./logging/')
+    # file_log = CURRENT_DAY + ' - log_operacao.txt'
 
-def get_Bcc():
-    QUANT_COURTS = environ["quant_courts"]
-    QUANT_COURTS = int(QUANT_COURTS)
-    bcc = []
+    to = ["2021002252@ifam.edu.br"]
+    subject = f"Send Log Bot in {CURRENT_DAY}"
+    body = "This email is send automaticly when the automation finished!"
+    files = [rf'C:\Users\Carlos_Souza\Documents\projects\bot_intimation_inss\logging\{CURRENT_DAY}\{CURRENT_DAY} - log_operacao.txt']
 
-    for i in range(1, QUANT_COURTS + 1):
-        index = f'bcc{i}'
-        bcc.append(environ[index])
+    email.send_message(subject, body, to, attachments=files, use_html=False)
+    email.disconnect()
 
-    return bcc
-
-
-def get_Cc():
-    cc = []
-
-    for i in range(1, 3):
-        index = f'cc{i}'
-        cc.append(environ[index])
-
-    return cc
-
+    logging.info(f"Email enviado para {to}.")
+    register_log(f"Email enviado para {to}.")
 
 ### FUNCTIONS TO USE IN main() ###
 
@@ -413,7 +330,6 @@ def search_advanced_button():
     click_element("Stm0p3i1TRR")
 
     quit_frame()
-
 
 def config_forms():
     enter_frame()
@@ -431,7 +347,6 @@ def config_forms():
     click_element("pesquisar")
 
     quit_frame()
-
 
 def mark_all_citations():
     enter_frame()
@@ -453,11 +368,13 @@ def mark_all_citations():
 
     click_element('movimentarEmLoteButton')
 
+    logging.info("Marcado todos os processos da página!")
+    register_log("Marcado todos os processos da página!")
+
     dialog = bot.get_js_dialog()
     dialog.accept()
 
     quit_frame()
-
 
 def extract_processes_text():
     enter_frame()
@@ -468,46 +385,45 @@ def extract_processes_text():
             '//*[@id="errorMessages"]/div[3]/div/ul/li',
             By.XPATH
         ).text
-        # ids = [element.text for element in text_warning]
-
-        print(f"Mensagem: {text_warning}")
 
         # Extract the ID processes after the word 'processo(s)'
         process_ids = re.findall(
-            r'\d{7}-\d{2}\.\d{4}\.\d{1}\.\d{2}\.\d{4}',
+            r'\d{7}-\d{2}\.\d{4}\.\d\.\d{2}\.\d{4}',
             text_warning
         )
 
         # Create a list with all IDs caught
         process_ids_list = list(process_ids)
 
-        quit_frame()
+        logging.info(f"Processos desmarcados: {process_ids_list}")
+        register_log(f"Processos desmarcados: {process_ids_list}")
 
-        print(f"Quant. processos a desmarcar: {len(process_ids_list)}")
+        quit_frame()
 
         return process_ids_list
 
     except Exception as ex:
         print(f"Text not Found! {ex}")
 
-
 def no_records():
     try:
         enter_frame()
         enter_iframe()
 
-        no_records = bot.find_element(
+        without_register = bot.find_element(
             '//*[@id="processoBuscaForm"]/table[2]/tbody/tr/td',
             By.XPATH
         ).text
 
+        logging.info('Sem registros/processos na Unidade.')
+        register_log('Sem registros/processos na Unidade.')
+
         quit_frame()
 
-        return no_records
+        return without_register
 
     except Exception as ex:
         print(ex)
-
 
 def check_warning_board():
     enter_frame()
@@ -520,9 +436,10 @@ def check_warning_board():
     )
 
     quit_frame()
+    logging.info('Quadro de Erros encontrado!')
+    register_log('Quadro de Erros encontrado!')
 
     return text_warning
-
 
 def uncheck_processes(listID):
     enter_frame()
@@ -557,6 +474,8 @@ def uncheck_processes(listID):
                     )
 
             print(f"Processo {temp_text} desmarcado")
+            logging.info(f"Processo {temp_text} desmarcado")
+            register_log(f"Processo {temp_text} desmarcado")
 
         while True:
             next_page = bot.find_element(
@@ -600,15 +519,17 @@ def uncheck_processes(listID):
                             )
 
                     print(f"Processo {temp_text} desmarcado")
+                    logging.info(f"Processo {temp_text} desmarcado")
+                    register_log(f"Processo {temp_text} desmarcado")
 
             click_element('nextButton')
             quit_frame()  # finish Input forms
 
     except Exception as ex:
         print(ex)
+
         click_element('nextButton')
         quit_frame()  # finish Input forms
-
 
 def insert_files():
     quit_frame()
@@ -622,7 +543,6 @@ def insert_files():
         print(ex)
 
     quit_frame()
-
 
 def fillForms():
     # quit_frame()
@@ -668,7 +588,6 @@ def fillForms():
 
     quit_frame()
 
-
 def archivingForms():
     enter_frame()
     enter_iframe()
@@ -696,7 +615,6 @@ def archivingForms():
 
     quit_frame()
 
-
 def error_continue():
     try:
         enter_frame()
@@ -708,7 +626,6 @@ def error_continue():
 
     except Exception as ex:
         print(ex)
-
 
 ### PRINCIPAL FUNCTION ###
 
@@ -791,12 +708,12 @@ def main():
         # End RPA
 
     # remove_downloads()
-    # send_log_email()
-    # move_files()
+    move_files()
+    send_email_attachment()
+    delete_files() # delete old files/folder
 
     logging.info('Execução finalizada com sucesso!')
     bot.stop_browser()
-
 
 if __name__ == '__main__':
     load_dotenv()
