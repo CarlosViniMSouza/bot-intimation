@@ -461,39 +461,21 @@ def extract_processes_text():
         print(f"Text not Found! {ex}")
 
 def no_records():
-    enter_frame()
-    enter_iframe()
+    try:
+        enter_frame()
+        enter_iframe()
 
-    no_records = bot.find_element(
-        '//*[@id="processoBuscaForm"]/table[2]/tbody/tr/td', 
-        By.XPATH
-    ).text
+        no_records = bot.find_element(
+            '//*[@id="processoBuscaForm"]/table[2]/tbody/tr/td',
+            By.XPATH
+        ).text
 
-    quit_frame()
+        quit_frame()
 
-    return no_records
+        return no_records
 
-def intimate_each_process(listID):
-    enter_frame()
-    enter_iframe()
-
-    for id in range(0, len(listID)):
-        process = search_process(listID[id])
-
-        if process is False:
-            print("Processo com Restrição. Próximo!")
-
-        else:
-            bot.scroll_down(clicks=4)
-            click_element(
-                '/html/body/div[1]/div[2]/form/fieldset/table[3]/tbody/tr[2]/td/div/div/div/table/tbody/tr[1]/td[4]/b/a',
-                by=By.XPATH
-            )
-
-            # click_element('movimentarButton')
-            # click_element('//*[@id="movimentarProcessoForm"]/fieldset/table[2]/tbody/tr/td[1]/a[1]', By.XPATH)
-
-    quit_frame()
+    except Exception as ex:
+        print(ex)
 
 def check_warning_board():
     enter_frame()
@@ -585,18 +567,22 @@ def uncheck_processes(listID):
                             )
 
                     print(f"Processo {temp_text} desmarcado")
+
+            click_element('nextButton')
+            quit_frame()  # finish Input forms
     
     except Exception as ex:
         print(ex)
         click_element('nextButton')
-        # quit_frame() # finish Input forms
+        quit_frame() # finish Input forms
 
 def insert_files():
+    quit_frame()
     enter_frame()
     enter_iframe()
 
     try:
-        pass
+        click_element('//*[@id="addButton"]')
 
     except Exception as ex:
         print(ex)
@@ -604,15 +590,16 @@ def insert_files():
     quit_frame()
 
 def fillForms():
-    quit_frame()
+    # quit_frame()
     enter_frame()
     enter_iframe()
 
-    click_element("nextButton") # follow File template forms
+    # click_element("nextButton") # follow File template forms
 
     #TODO insert_files() # insert intimation file template
 
     click_element("nextButton") # follow Intimation forms
+    # bot.wait(2000)
 
     first_select = bot.find_element(
         '//*[@id="movimentacaoMultiplaForm"]/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[2]/td[2]/select', 
@@ -621,26 +608,23 @@ def fillForms():
     first_select = element_as_select(first_select)
     first_select.select_by_index(index=2)
 
-    checkbox = bot.find_element(
-        '//*[@id="idTipoPartesAdvogado0"]', 
-        by=By.XPATH
-    )
-    checkbox.click()
+    # click_element("nextButton")  # follow Checkboxs forms
+    click_element("idTipoPartesAdvogado0") # click Checkbox lawyer
 
-    bot.find_element('//*[@id="prazo0"]', By.XPATH).send_keys("1")
-
+    num_days = 1
+    bot.find_element('prazo0', By.ID).send_keys(num_days)
     click_element('nextButton') # follow Locator Registration
 
     second_select = bot.find_element(
-        'Núcleo - RPV EXPEDIDO',
-        By.XPATH
+        'codLocalizador',
+        By.ID
     )
     second_select = element_as_select(second_select)
-    second_select.select_by_visible_text(text="ROBÔ - Aguardando Trânsito em Julgado")
+    second_select.select_by_visible_text(text="Núcleo - RPV EXPEDIDO")
     
     click_element('nextButton') # follow Confimation forms
-
     bot.scroll_down(6)
+
     click_element(
         '//*[@id="movimentacaoMultiplaForm"]/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[5]/td/input[1]',
         By.XPATH
@@ -665,18 +649,28 @@ def archivingForms():
     click_element('arquivamentoDefinitivoS') # input-radio for Definitive archiving
     click_element("nextButton") # follow
 
-def error_continue():
-    # enter_frame()
-    # enter_iframe()
-
-    no_records = bot.find_element(
-        '//*[@id="errorMessages"]/div[3]/div/ul/li', 
+    second_select = bot.find_element(
+        '//*[@id="codLocalizador"]',
         By.XPATH
-    ).text
+    )
+    second_select = element_as_select(second_select)
+    second_select.select_by_visible_text('Núcleo - Ag. expedição de Alvará')
 
-    # quit_frame()
+    click_element("nextButton")  # follow the Final forms
 
-    return no_records
+    quit_frame()
+
+def error_continue():
+    try:
+        enter_frame()
+        enter_iframe()
+
+        click_element('cancelButton')
+
+        quit_frame()
+
+    except Exception as ex:
+        print(ex)
 
 ### PRINCIPAL FUNCTION ###
 
@@ -739,17 +733,17 @@ def main():
             else:
                 print("Quadro de Aviso não Detectado!")
 
-            """
-            text_error = error_continue()
+            # case for unmark all processes #
+            text_error = check_warning_board()
 
-            if text_error == "Selecione ao menos um movimento":
-                # enter if unmark all processes
-                click_element('cancelButton') # return to First Forms
+            if text_error:
+                error_continue() # return to First Forms
+
             else:
                 print("Sem problemas com os processos seleciondos!")
-            """
 
-            fillForms()
+                fillForms()
+                archivingForms()
 
         # Change Court
         logging.info(f"Encerrando acesso lotação {number_capacity}!")
