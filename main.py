@@ -18,6 +18,7 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
+
 ### GETTERS ###
 
 def get_field(selector, by=By.ID, property=''):
@@ -27,8 +28,8 @@ def get_field(selector, by=By.ID, property=''):
 
         while not found and attempts > 0:
             element = bot.find_element(
-                selector, 
-                by, 
+                selector,
+                by,
                 ensure_clickable=True
             )
 
@@ -44,6 +45,7 @@ def get_field(selector, by=By.ID, property=''):
 
     except Exception as err:
         logging.error(f'Erro ao obter {selector}! {err}')
+
 
 def get_elements(selector, by=By.XPATH, property=''):
     try:
@@ -77,6 +79,7 @@ def get_elements(selector, by=By.XPATH, property=''):
         logging.error(f'Erro ao buscar os elementos! {err}')
         exit()
 
+
 def get_content(element, property='textContent'):
     try:
         value = element.get_property(property)
@@ -86,10 +89,11 @@ def get_content(element, property='textContent'):
         logging.error(f'Erro ao obter {property} do element {element}! {err}')
         exit()
 
+
 def get_capacity(index):
     try:
         capacity = get_field(
-            f"//div[@id='listaAreaAtuacaovara']//li[{index}]//a", 
+            f"//div[@id='listaAreaAtuacaovara']//li[{index}]//a",
             By.XPATH
         )
         number_capacity = capacity.get_property('title')
@@ -101,12 +105,15 @@ def get_capacity(index):
         logging.error(f'Erro ao obter lotação! {err}')
         exit()
 
+
 def get_current_day():
     return str(date.today())
+
 
 def get_directory():
     data = get_current_day()
     return './logging/' + data
+
 
 ### FRAMES ###
 
@@ -114,16 +121,20 @@ def enter_frame():
     frame = get_field('mainFrame')
     bot.enter_iframe(frame)
 
+
 def enter_iframe():
     iframe = get_field('userMainFrame', By.NAME)
     bot.enter_iframe(iframe)
+
 
 def enter_iframeId():
     iframe = get_field('//iframe[contains(@name,"window")]', By.XPATH)
     bot.enter_iframe(iframe)
 
+
 def quit_frame():
     bot.leave_iframe()
+
 
 """
 def start_procedures():
@@ -134,6 +145,7 @@ def start_procedures():
     enter_iframe()
 """
 
+
 ### FILES ###
 
 def register_log(msg):
@@ -142,6 +154,7 @@ def register_log(msg):
 
     with open(FILE, "a") as file:
         print(msg, file=file)
+
 
 def create_directory():
     try:
@@ -156,6 +169,7 @@ def create_directory():
         logging.error(f'Erro ao criar diretório do arquivo de saída para o usuário! {err}')
         exit()
 
+
 def move_files():
     DIRECTORY = get_directory()
     CURRENT_DAY = get_current_day()
@@ -169,6 +183,7 @@ def move_files():
 
         if file_log in file:
             rename(f"./{file}", f"{DIRECTORY}/{file}")
+
 
 def remove_downloads():
     try:
@@ -190,6 +205,7 @@ def remove_downloads():
         logging.error(f'Erro ao excluir arquivos! {err}')
         exit()
 
+
 ### ACTIONS ###
 
 def open_projudi():
@@ -203,6 +219,7 @@ def open_projudi():
     bot.browse(HML)
     bot.maximize_window()
 
+
 def click_element(selector, by=By.ID):
     try:
         attempts = 20
@@ -210,8 +227,8 @@ def click_element(selector, by=By.ID):
 
         while not found and attempts > 0:
             element = bot.find_element(
-                selector, 
-                by, 
+                selector,
+                by,
                 ensure_clickable=True
             )
 
@@ -225,6 +242,7 @@ def click_element(selector, by=By.ID):
         logging.error(f'Erro ao clicar no elemento {selector}! {err}')
         exit()
 
+
 def swith_capacities():
     try:
         quit_frame()
@@ -237,6 +255,7 @@ def swith_capacities():
     except Exception as err:
         logging.error(f'Erro ao alternar lotação! {err}')
         exit()
+
 
 def search_process(process):
     quit_frame()
@@ -280,23 +299,26 @@ def search_process(process):
 
     return True
 
+
 def verify_pending():
     click_element('quadroFilas')
-    
+
     return bot.find_element(
-        '//label[contains(text(), "Restrição à Movimentação:")]', 
-        By.XPATH, 
+        '//label[contains(text(), "Restrição à Movimentação:")]',
+        By.XPATH,
         waiting_time=2000
     )
+
 
 def verify_warning():
     click_element('warningMessages')
 
     return bot.find_element(
-        '//*[@id="errorMessages"]', 
-        By.XPATH, 
+        '//*[@id="errorMessages"]',
+        By.XPATH,
         waiting_time=2000
     )
+
 
 ### LOGIN ###
 
@@ -319,11 +341,12 @@ def login():
         logging.error(f'Erro ao efetuar login! {err}')
         exit()
 
+
 def error_login():
     try:
         bot.find_element(
-            'errorMessages', 
-            By.ID, 
+            'errorMessages',
+            By.ID,
             waiting_time=2000
         ).click()
         logging.error('Erro ao efetuar login!')
@@ -335,6 +358,7 @@ def error_login():
         print(err)
 
         return False
+
 
 ### EMAIL ###
 
@@ -355,6 +379,7 @@ def send_log_email():
         use_html=False
     )
 
+
 def get_Bcc():
     QUANT_COURTS = environ["quant_courts"]
     QUANT_COURTS = int(QUANT_COURTS)
@@ -366,6 +391,7 @@ def get_Bcc():
 
     return bcc
 
+
 def get_Cc():
     cc = []
 
@@ -374,6 +400,7 @@ def get_Cc():
         cc.append(environ[index])
 
     return cc
+
 
 ### FUNCTIONS TO USE IN main() ###
 
@@ -386,6 +413,7 @@ def search_advanced_button():
     click_element("Stm0p3i1TRR")
 
     quit_frame()
+
 
 def config_forms():
     enter_frame()
@@ -404,11 +432,25 @@ def config_forms():
 
     quit_frame()
 
+
 def mark_all_citations():
     enter_frame()
     enter_iframe()
 
     click_element('//*[@id="processoBuscaForm"]/table[2]/thead/tr/th[1]/input', By.XPATH)
+
+    while True:
+        next_page = bot.find_element(selector='arrowNextOn', by=By.CLASS_NAME, waiting_time=2000)
+
+        if not next_page:
+            break  # finished while loop
+
+        else:
+            next_page.click()
+            bot.wait(2000)  # loading <em> elements
+
+            click_element('//*[@id="processoBuscaForm"]/table[2]/thead/tr/th[1]/input', By.XPATH)
+
     click_element('movimentarEmLoteButton')
 
     dialog = bot.get_js_dialog()
@@ -416,13 +458,14 @@ def mark_all_citations():
 
     quit_frame()
 
+
 def extract_processes_text():
     enter_frame()
     enter_iframe()
 
     try:
         text_warning = bot.find_element(
-            '//*[@id="errorMessages"]/div[3]/div/ul/li', 
+            '//*[@id="errorMessages"]/div[3]/div/ul/li',
             By.XPATH
         ).text
         # ids = [element.text for element in text_warning]
@@ -431,7 +474,7 @@ def extract_processes_text():
 
         # Extract the ID processes after the word 'processo(s)'
         process_ids = re.findall(
-            r'\d{7}-\d{2}\.\d{4}\.\d{1}\.\d{2}\.\d{4}', 
+            r'\d{7}-\d{2}\.\d{4}\.\d{1}\.\d{2}\.\d{4}',
             text_warning
         )
 
@@ -440,57 +483,39 @@ def extract_processes_text():
 
         quit_frame()
 
+        print(f"Quant. processos a desmarcar: {len(process_ids_list)}")
+
         return process_ids_list
 
     except Exception as ex:
         print(f"Text not Found! {ex}")
 
-def no_records():
-    enter_frame()
-    enter_iframe()
 
+def no_records():
     try:
-        text_no_records = get_content(
-            '//*[@id="processoBuscaForm"]/table[2]/tbody/tr/td', 
+        enter_frame()
+        enter_iframe()
+
+        no_records = bot.find_element(
+            '//*[@id="processoBuscaForm"]/table[2]/tbody/tr/td',
             By.XPATH
-        )
+        ).text
 
         quit_frame()
 
-        return text_no_records
+        return no_records
 
     except Exception as ex:
         print(ex)
 
-def intimate_each_process(listID):
-    enter_frame()
-    enter_iframe()
-
-    for id in range(0, len(listID)):
-        process = search_process(listID[id])
-
-        if process is False:
-            print("Processo com Restrição. Próximo!")
-
-        else:
-            bot.scroll_down(clicks=4)
-            click_element(
-                '/html/body/div[1]/div[2]/form/fieldset/table[3]/tbody/tr[2]/td/div/div/div/table/tbody/tr[1]/td[4]/b/a',
-                by=By.XPATH
-            )
-
-            # click_element('movimentarButton')
-            # click_element('//*[@id="movimentarProcessoForm"]/fieldset/table[2]/tbody/tr/td[1]/a[1]', By.XPATH)
-
-    quit_frame()
 
 def check_warning_board():
     enter_frame()
     enter_iframe()
 
     text_warning = bot.find_element(
-        '//*[@id="errorMessages"]', 
-        By.XPATH, 
+        '//*[@id="errorMessages"]',
+        By.XPATH,
         waiting_time=2000
     )
 
@@ -498,102 +523,192 @@ def check_warning_board():
 
     return text_warning
 
+
 def uncheck_processes(listID):
     enter_frame()
     enter_iframe()
 
-    for i in range(1, 40, 2):
-        temp_text = bot.find_element(
-            f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[4]/a/em',
+    try:
+        table = bot.find_element(
+            '//*[@id="movimentacaoMultiplaForm"]/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody',
             By.XPATH
-        ).text
+        )
 
-        if temp_text is None:
-            break # There are no more processes to uncheck
+        # Count <tr> tags in table
+        tr_tags = table.find_elements_by_tag_name("tr")
+        length_table = len(tr_tags)
 
-        print(f"Vendo {i}° processo: {temp_text}")
+        for i in range(1, length_table, 2):
+            temp_text = bot.find_element(
+                f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[4]/a/em',
+                By.XPATH
+            ).text
 
-        for processId in listID:
-            if temp_text == processId:
-                click_element(
-                    f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[1]/input',
+            if temp_text is None:
+                break  # There are no more processes to uncheck
+
+            print(f"Vendo {i}° processo: {temp_text}")
+
+            for processId in listID:
+                if temp_text == processId:
+                    click_element(
+                        f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[1]/input',
+                        By.XPATH
+                    )
+
+            print(f"Processo {temp_text} desmarcado")
+
+        while True:
+            next_page = bot.find_element(
+                selector='arrowNextOn',
+                by=By.CLASS_NAME,
+                waiting_time=2000
+            )
+
+            if next_page is None:
+                break
+            else:
+                next_page.click()
+
+                table = bot.find_element(
+                    '//*[@id="movimentacaoMultiplaForm"]/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody',
                     By.XPATH
                 )
 
-                print(f"Processo {temp_text} desmarcado")
+                # Count <tr> tags in table
+                tr_tags = table.find_elements_by_tag_name("tr")
+                length_table = len(tr_tags)
 
-    quit_frame()
+                bot.wait(2000)
+
+                for i in range(1, length_table, 2):
+                    temp_text = bot.find_element(
+                        f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[4]/a/em',
+                        By.XPATH
+                    ).text
+
+                    if temp_text is None:
+                        break  # There are no more processes to uncheck
+
+                    print(f"Vendo {i}° processo: {temp_text}")
+
+                    for processId in listID:
+                        if temp_text == processId:
+                            click_element(
+                                f'/html/body/div[1]/div[2]/form/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[1]/td/table/tbody/tr[{i}]/td[1]/input',
+                                By.XPATH
+                            )
+
+                    print(f"Processo {temp_text} desmarcado")
+
+            click_element('nextButton')
+            quit_frame()  # finish Input forms
+
+    except Exception as ex:
+        print(ex)
+        click_element('nextButton')
+        quit_frame()  # finish Input forms
+
 
 def insert_files():
+    quit_frame()
     enter_frame()
     enter_iframe()
 
     try:
-        pass
+        click_element('//*[@id="addButton"]')
 
     except Exception as ex:
         print(ex)
 
     quit_frame()
 
+
 def fillForms():
+    # quit_frame()
     enter_frame()
     enter_iframe()
 
-    insert_files() # insert intimation file template
+    # click_element("nextButton") # follow File template forms
 
-    click_element("nextButton") # follow Intimation forms
+    # TODO insert_files() # insert intimation file template
+
+    click_element("nextButton")  # follow Intimation forms
+    # bot.wait(2000)
 
     first_select = bot.find_element(
-        '//*[@id="movimentacaoMultiplaForm"]/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[2]/td[2]/select', 
+        '//*[@id="movimentacaoMultiplaForm"]/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[2]/td[2]/select',
         By.XPATH
     )
     first_select = element_as_select(first_select)
     first_select.select_by_index(index=2)
 
-    checkbox = bot.find_element(
-        '//*[@id="idTipoPartesAdvogado0"]', 
-        by=By.XPATH
-    )
-    checkbox.click()
+    # click_element("nextButton")  # follow Checkboxs forms
+    click_element("idTipoPartesAdvogado0")  # click Checkbox lawyer
 
-    bot.find_element('//*[@id="prazo0"]', By.XPATH).send_keys("1")
-
-    click_element('nextButton') # follow Locator Registration
+    num_days = 1
+    bot.find_element('prazo0', By.ID).send_keys(num_days)
+    click_element('nextButton')  # follow Locator Registration
 
     second_select = bot.find_element(
-        'Núcleo - RPV EXPEDIDO',
-        By.XPATH
+        'codLocalizador',
+        By.ID
     )
     second_select = element_as_select(second_select)
-    second_select.select_by_visible_text(text="ROBÔ - Aguardando Trânsito em Julgado")
-    
-    click_element('nextButton') # follow Confimation forms
+    second_select.select_by_visible_text(text="Núcleo - RPV EXPEDIDO")
 
+    click_element('nextButton')  # follow Confimation forms
     bot.scroll_down(6)
+
     click_element(
         '//*[@id="movimentacaoMultiplaForm"]/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[5]/td/input[1]',
         By.XPATH
-    ) # continue Moving processes
-    click_element('saveButton') # finish
+    )  # continue Moving processes
+    click_element('saveButton')  # finish
 
     quit_frame()
+
 
 def archivingForms():
     enter_frame()
     enter_iframe()
 
-    click_element("nextButton") # follow Archive forms
+    click_element("nextButton")  # follow Archive forms
 
     first_select = bot.find_element(
-        '//*[@id="movimentacaoMultiplaForm"]/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[2]/td[2]/select', 
+        '//*[@id="movimentacaoMultiplaForm"]/fieldset/table[1]/tbody/tr/td[2]/table/tbody/tr[2]/td[2]/select',
         By.XPATH
     )
     first_select = element_as_select(first_select)
     first_select.select_by_index(index=4)
 
-    click_element('arquivamentoDefinitivoS') # input-radio for Definitive archiving
-    click_element("nextButton") # follow
+    click_element('arquivamentoDefinitivoS')  # input-radio for Definitive archiving
+    click_element("nextButton")  # follow
+
+    second_select = bot.find_element(
+        '//*[@id="codLocalizador"]',
+        By.XPATH
+    )
+    second_select = element_as_select(second_select)
+    second_select.select_by_visible_text('Núcleo - Ag. expedição de Alvará')
+
+    click_element("nextButton")  # follow the Final forms
+
+    quit_frame()
+
+
+def error_continue():
+    try:
+        enter_frame()
+        enter_iframe()
+
+        click_element('cancelButton')
+
+        quit_frame()
+
+    except Exception as ex:
+        print(ex)
+
 
 ### PRINCIPAL FUNCTION ###
 
@@ -635,18 +750,15 @@ def main():
         # Configuration Forms #
         config_forms()
 
-        # mark all citations in the page #
-        mark_all_citations()
+        no_record = no_records()
 
-        """ 
-        # check if exists records
-        text_empty = no_records()
+        if no_record == "Nenhum registro encontrado":
+            print("Sem registros. Proxima Unidade!\n")
 
-        print(f"Conteudo da variavel text_empty: {text_empty}")
-
-        if text_empty is not None:
-            print("Sem registros. Proxima Unidade!")
         else:
+            # mark all citations in the page #
+            mark_all_citations()
+
             # extract ID processes from warning #
             warning = check_warning_board()
 
@@ -654,26 +766,22 @@ def main():
                 ids = extract_processes_text()
                 print(f"Processos obtidos: {ids}")
 
-                uncheck_processes(listID=ids) # Search Process by Process
+                uncheck_processes(listID=ids)  # Search Process by Process
 
             else:
                 print("Quadro de Aviso não Detectado!")
 
-            fillForms()
-        """
+            # case for unmark all processes #
+            text_error = check_warning_board()
 
-        warning = check_warning_board()
+            if text_error:
+                error_continue()  # return to First Forms
 
-        if warning:
-            ids = extract_processes_text()
-            print(f"Processos obtidos: {ids}")
+            else:
+                print("Sem problemas com os processos seleciondos!")
 
-            uncheck_processes(listID=ids) # Search Process by Process
-
-        else:
-            print("Quadro de Aviso não Detectado!")
-
-        fillForms()
+                fillForms()
+                archivingForms()
 
         # Change Court
         logging.info(f"Encerrando acesso lotação {number_capacity}!")
@@ -688,6 +796,7 @@ def main():
 
     logging.info('Execução finalizada com sucesso!')
     bot.stop_browser()
+
 
 if __name__ == '__main__':
     load_dotenv()

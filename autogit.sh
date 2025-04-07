@@ -1,5 +1,5 @@
 git add -A
-git commit -m "to-do: insert new processes to test"
+git commit -m "done: dev.py content transferred to main.py"
 git push -u origin main
 git status
 
