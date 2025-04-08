@@ -25,6 +25,7 @@ numpy==1.26.4
 opencv-python==4.11.0.86
 packaging==24.2
 pillow==11.1.0
+psutil==7.0.0
 Pygments==2.19.1
 python-dateutil==2.9.0.post0
 python-dotenv==1.0.1
