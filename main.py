@@ -365,7 +365,6 @@ def mark_all_citations():
 
     click_element('//*[@id="processoBuscaForm"]/table[2]/thead/tr/th[1]/input', By.XPATH)
 
-    """
     while True:
         next_page = bot.find_element(
             selector='arrowNextOn',
@@ -381,9 +380,10 @@ def mark_all_citations():
             bot.wait(2000)  # loading <em> elements
 
             click_element('//*[@id="processoBuscaForm"]/table[2]/thead/tr/th[1]/input', By.XPATH)
-    """
 
     click_element('movimentarEmLoteButton')
+
+    print("Marcado todos os processos da página!")
 
     logging.info("Marcado todos os processos da página!")
     register_log("Marcado todos os processos da página!")
@@ -470,10 +470,6 @@ def uncheck_processes(list_id):
                 logging.info(f"Processo {temp_text} desmarcado")
                 register_log(f"Processo {temp_text} desmarcado")
 
-    click_element('nextButton')
-    quit_frame()
-
-    """
     next_page = bot.find_element(
         selector='arrowNextOn',
         by=By.CLASS_NAME,
@@ -482,10 +478,15 @@ def uncheck_processes(list_id):
 
     if next_page:
         print("\n")
+
         next_page.click()
+        quit_frame()
+
+        return uncheck_processes(list_id)
+
     else:
-        break  # finish Input forms
-    """
+        click_element('nextButton')
+        quit_frame()
 
 def insert_files():
     enter_frame()
@@ -586,10 +587,15 @@ def error_continue():
     except Exception as ex:
         print(ex)
 
+### UTILS ###
+
+def clear_terminal():
+    os.system('cls')
+
 ### PRINCIPAL FUNCTION ###
 
 def main():
-    # delete_files() # remove old files
+    delete_files() # remove old files
 
     logging.info('Iniciando execução!')
 
@@ -615,11 +621,14 @@ def main():
 
     start_from = environ["start_from"]
     start_from = int(start_from)
+    clear_terminal()
 
     for i in range(start_from, quantity_capacities + 1):
         number_capacity = get_capacity(i)
 
-        logging.info(f'Acessando lotação {number_capacity}!')
+        print(f"Acessando lotação {number_capacity}!")
+
+        logging.info(f"Acessando lotação {number_capacity}!")
         register_log(f"Acessando lotação {number_capacity}!")
 
         # start_procedures() --> equivalent to the main() function
@@ -635,6 +644,9 @@ def main():
         if no_record == "Nenhum registro encontrado":
             print("\nSem registros. Proxima Unidade!")
 
+            logging.info("\nSem registros. Proxima Unidade!")
+            register_log("\nSem registros. Proxima Unidade!")
+
         else:
             # mark all citations in the page #
             mark_all_citations()
@@ -644,29 +656,34 @@ def main():
 
             if warning:
                 ids = extract_processes_text()
-                print(f"Processos obtidos: {ids}")
+                print(f"\nProcessos obtidos: {ids}")
+
+                logging.info(f"\nProcessos não intimáveis: {ids}")
+                register_log(f"\nProcessos não intimáveis: {ids}")
 
                 uncheck_processes(list_id=ids)  # Search Process by Process
-
-            else:
-                print("Quadro de Aviso não Detectado!")
 
             # case for unmark all processes #
             text_error = check_warning_board()
 
             if text_error:
+                print(f"\nErro! Cancelando Intimação na lotação {number_capacity}")
+
+                logging.info(f"\nErro! Cancelando Intimação na lotação {number_capacity}")
+                register_log(f"\nErro! Cancelando Intimação na lotação {number_capacity}")
+
                 error_continue()  # return to First Forms
 
             else:
-                print("Sem problemas com os processos selecionados!")
-
                 insert_files()  # insert intimation file template
                 fillForms()
                 archivingForms()
 
         # Change Court
-        logging.info(f"Encerrando acesso lotação {number_capacity}!")
-        register_log(f"Encerrando acesso lotação {number_capacity}!")
+        print(f"\nEncerrando acesso lotação {number_capacity}!")
+
+        logging.info(f"\nEncerrando acesso lotação {number_capacity}!")
+        register_log(f"\nEncerrando acesso lotação {number_capacity}!")
 
         swith_capacities()
         # End RPA
@@ -675,7 +692,11 @@ def main():
     move_files()
     send_email_attachment()
 
-    logging.info('Execução finalizada com sucesso!')
+    print('\nExecução finalizada com sucesso!')
+
+    logging.info('\nExecução finalizada com sucesso!')
+    register_log('\nExecução finalizada com sucesso!')
+
     bot.stop_browser()
 
 if __name__ == '__main__':
