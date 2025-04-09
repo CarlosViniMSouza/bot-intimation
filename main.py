@@ -97,6 +97,11 @@ def get_capacity(index):
         number_capacity = capacity.get_property('title')
         capacity.click()
 
+        print(f"Acessando lotação {number_capacity}\n")
+
+        logging.info(f"Acessando lotação {number_capacity}\n")
+        register_log(f"Acessando lotação {number_capacity}\n")
+
         return number_capacity
 
     except Exception as err:
@@ -184,14 +189,8 @@ def remove_downloads():
         exit()
 
 def delete_files():
-    CURRENT_DAY = get_current_day()
-    file_path = CURRENT_DAY + ' - log_operacao.txt'
-
     if os.path.exists(r".\logging"):
         shutil.rmtree(r".\logging")
-
-    if os.path.exists(rf".\{file_path}"):
-        os.remove(rf".\{file_path}")
 
     #if os.path.exists(r".\templateProjudi.log"):
     #    os.remove(r".\templateProjudi.log")
@@ -311,9 +310,6 @@ def send_email_attachment():
     email.send_message(subject, body, to, attachments=files, use_html=False)
     email.disconnect()
 
-    logging.info(f"Email enviado para {to}.")
-    register_log(f"Email enviado para {to}.")
-
 ### FUNCTIONS TO USE IN main() ###
 
 def search_advanced_button():
@@ -428,9 +424,10 @@ def extract_processes_text():
 
     # Create a list with all IDs caught
     process_ids_list = list(process_ids)
+    print(f"Processos desmarcados: {process_ids_list}\n")
 
-    logging.info(f"Processos desmarcados: {process_ids_list}")
-    register_log(f"Processos desmarcados: {process_ids_list}")
+    logging.info(f"Processos desmarcados: {process_ids_list}\n")
+    register_log(f"Processos desmarcados: {process_ids_list}\n")
 
     quit_frame()
 
@@ -477,8 +474,6 @@ def uncheck_processes(list_id):
     )
 
     if next_page:
-        print("\n")
-
         next_page.click()
         quit_frame()
 
@@ -575,10 +570,17 @@ def archivingForms():
 
     quit_frame()
 
-def error_continue():
+def error_continue(num_capacity):
     try:
         enter_frame()
         enter_iframe()
+
+        operation = "Intimação de Álvara"
+
+        print(f"\nErro! Cancelando {operation} na lotação {num_capacity}")
+
+        logging.info(f"\nErro! Cancelando {operation} na lotação {num_capacity}")
+        register_log(f"\nErro! Cancelando {operation} na lotação {num_capacity}")
 
         click_element('cancelButton')
 
@@ -626,13 +628,6 @@ def main():
     for i in range(start_from, quantity_capacities + 1):
         number_capacity = get_capacity(i)
 
-        print(f"Acessando lotação {number_capacity}!")
-
-        logging.info(f"Acessando lotação {number_capacity}!")
-        register_log(f"Acessando lotação {number_capacity}!")
-
-        # start_procedures() --> equivalent to the main() function
-
         # Search Advanced button #
         search_advanced_button()
 
@@ -667,12 +662,7 @@ def main():
             text_error = check_warning_board()
 
             if text_error:
-                print(f"\nErro! Cancelando Intimação na lotação {number_capacity}")
-
-                logging.info(f"\nErro! Cancelando Intimação na lotação {number_capacity}")
-                register_log(f"\nErro! Cancelando Intimação na lotação {number_capacity}")
-
-                error_continue()  # return to First Forms
+                error_continue(num_capacity=number_capacity)  # return to First Forms
 
             else:
                 insert_files()  # insert intimation file template
@@ -688,16 +678,13 @@ def main():
         swith_capacities()
         # End RPA
 
+    bot.stop_browser()
+
     # remove_downloads()
     move_files()
     send_email_attachment()
 
     print('\nExecução finalizada com sucesso!')
-
-    logging.info('\nExecução finalizada com sucesso!')
-    register_log('\nExecução finalizada com sucesso!')
-
-    bot.stop_browser()
 
 if __name__ == '__main__':
     load_dotenv()
