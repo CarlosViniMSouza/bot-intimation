@@ -1,5 +1,5 @@
 git add -A
-git commit -m "doing: refactoring main()"
+git commit -m "done: refactoring in multples files"
 git push -u origin main
 git status
 

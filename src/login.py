@@ -1,39 +1,58 @@
+### LOGIN ###
 import logging
 from os import environ
-
 from botcity.web import By
+from src.config import bot
 
-from src.actions import click_element
 from src.frames import enter_frame, quit_frame
+from src.files import register_log
+from src.actions import click_element
 
-def error_login(bot):
+logging.basicConfig(
+    filename='templateProjudi.log',
+    encoding='utf-8',
+    level=logging.INFO,
+    format="%(asctime)s - %(levelname)s - %(message)s"
+)
+
+def login():
     try:
-        bot.find_element('errorMessages', By.ID, waiting_time=2000).click()
-        logging.error('Erro ao efetuar login!')
-    
-        return True
-    
-    except Exception as err:
-        logging.info('Login efetuado com sucesso!')
-        print(err)
-
-        return False
-
-def login(bot):
-    try:
-        enter_frame(bot)
-        click_element(bot, 'login')
+        enter_frame()
+        click_element('login')
 
         bot.paste(environ["user"])
         bot.tab()
         bot.paste(environ["password"])
         bot.enter()
 
-        if error_login(bot):
+        if error_login():
             exit()
 
-        quit_frame(bot)
+        quit_frame()
 
     except Exception as err:
         logging.error(f'Erro ao efetuar login! {err}')
+        register_log(f'Erro ao efetuar login! {err}')
+
         exit()
+
+def error_login():
+    try:
+        bot.find_element(
+            'errorMessages',
+            By.ID,
+            waiting_time=2000
+        ).click()
+
+        logging.error('Erro ao efetuar login!')
+        register_log('Erro ao efetuar login!')
+
+        return True
+
+    except Exception as err:
+        print(err)
+
+        logging.info('Login efetuado com sucesso!')
+        register_log('Login efetuado com sucesso!')
+
+        return False

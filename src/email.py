@@ -1,39 +1,24 @@
-from os import environ
+### EMAIL ###
 from botcity.plugins.email import BotEmailPlugin
+from src.getters import get_current_day
 
-def send_log_email():
-    credentials = './gmail.json'
-    gmail = BotEmailPlugin(credentials, environ["sender"])
-    bcc = get_Bcc()
-    to = get_Cc()
+def send_email_attachment():
+    email = BotEmailPlugin()
 
-    subject = "Teste e-mail"
-    body = "Teste de e-mail!\n\nFavor não responder."
-    files = []
+    email.configure_imap("imap.gmail.com", 993)
+    email.configure_smtp(host_address="smtp.gmail.com", port=587)
+    email.login(email="botcityifam@gmail.com", password="licp pjdk zdet japu")
 
-    gmail.send_message(
-        subject, body, to, 
-        bcc_addrs=bcc, 
-        attachments=files, 
-        use_html=False
-    )
+    # DIRECTORY = get_directory()
+    CURRENT_DAY = get_current_day()
 
-def get_Bcc():
-    QUANT_COURTS = environ["quant_courts"]
-    QUANT_COURTS = int(QUANT_COURTS)
-    bcc = []
+    # list_files = listdir(f'./logging/')
+    # file_log = CURRENT_DAY + ' - log_operacao.txt'
 
-    for i in range(1, QUANT_COURTS+1):
-        index = f'bcc{i}'
-        bcc.append(environ[index])
+    to = ["2021002252@ifam.edu.br"]
+    subject = f"Send Log Bot in {CURRENT_DAY}"
+    body = "This email is send automaticly when the automation finished!"
+    files = [rf'C:\Users\Carlos_Souza\Documents\projects\bot_issue_inss\logging\{CURRENT_DAY}\{CURRENT_DAY} - log_operacao.txt']
 
-    return bcc
-
-def get_Cc():
-    cc = []
-
-    for i in range(1,3):
-        index = f'cc{i}'
-        cc.append(environ[index])
-
-    return cc
+    email.send_message(subject, body, to, attachments=files, use_html=False)
+    email.disconnect()

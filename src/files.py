@@ -1,10 +1,10 @@
-import logging
-
-from os import makedirs, listdir, rename, remove, path
+### FILES ###
+import logging, shutil  # noqa: E401
 from os.path import isdir
+from os import makedirs, listdir, rename, path, remove
 
+from src.frames import enter_frame
 from src.getters import get_directory, get_current_day
-# from src.frames import enter_frame
 
 def register_log(msg):
     CURRENT_DAY = get_current_day()
@@ -19,9 +19,9 @@ def create_directory():
 
         if not isdir(DIRECTORY):
             makedirs(DIRECTORY)
-        
-        # enter_frame()
-    
+
+        enter_frame()
+
     except Exception as err:
         logging.error(f'Erro ao criar diretório do arquivo de saída para o usuário! {err}')
         exit()
@@ -34,7 +34,7 @@ def move_files():
     file_log = CURRENT_DAY + ' - log_operacao.txt'
 
     for file in list_files:
-        if (".pdf") in file:
+        if ".pdf" in file:
             rename(f"./{file}", f"{DIRECTORY}/{file}")
 
         if file_log in file:
@@ -59,3 +59,10 @@ def remove_downloads():
     except Exception as err:
         logging.error(f'Erro ao excluir arquivos! {err}')
         exit()
+
+def delete_files():
+    if path.exists(r".\logging"):
+        shutil.rmtree(r".\logging")
+
+    #if os.path.exists(r".\templateProjudi.log"):
+    #    os.remove(r".\templateProjudi.log")
