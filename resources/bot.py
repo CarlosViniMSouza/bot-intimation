@@ -37,7 +37,9 @@ def main():
         nmLotacao = obterLotacao(i)
         logging.info(f'Acessando lotação {nmLotacao}!')
         registrarLog(f"Acessando lotação {nmLotacao}")
+
         iniciarProcedimentos()
+
         logging.info(f'Encerrando acesso lotação {nmLotacao}!')
         registrarLog(f"Encerrando acesso na lotação {nmLotacao}")
         alternarLotacao()

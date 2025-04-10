@@ -12,6 +12,8 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
+### GETTERS ###
+
 def get_field(selector, by=By.ID, property=''):
     global element
 
@@ -20,11 +22,7 @@ def get_field(selector, by=By.ID, property=''):
         found = False
 
         while not found and attempts > 0:
-            element = bot.find_element(
-                selector,
-                by,
-                ensure_clickable=True
-            )
+            element = bot.find_element(selector, by, ensure_clickable=True)
 
             if element:
                 found = True
@@ -40,7 +38,6 @@ def get_field(selector, by=By.ID, property=''):
         logging.error(f'Erro ao obter {selector}! {err}')
 
 def get_elements(selector, by=By.XPATH, property=''):
-    global elements
     try:
         found = False
         attempts = 20
@@ -58,8 +55,8 @@ def get_elements(selector, by=By.XPATH, property=''):
         else:
             elements_property = []
 
-            for obj in elements:
-                value = obj.get_property(property)
+            for element in elements:
+                value = element.get_property(property)
 
                 if type(value) is str:
                     value = value.strip()
@@ -72,38 +69,30 @@ def get_elements(selector, by=By.XPATH, property=''):
         logging.error(f'Erro ao buscar os elementos! {err}')
         exit()
 
-def get_content(obj, property='textContent'):
+def get_content(element, property='textContent'):
     try:
-        value = obj.get_property(property)
+        value = element.get_property(property)
         return value.strip()
 
     except Exception as err:
-        logging.error(f'Erro ao obter {property} do element {obj}! {err}')
+        logging.error(f'Erro ao obter {property} do elemento {element}: {err}')
         exit()
 
 def get_capacity(index):
     try:
-        capacity = get_field(
-            f"//div[@id='listaAreaAtuacaovara']//li[{index}]//a",
-            By.XPATH
-        )
+        capacity = get_field(f"//div[@id='listaAreaAtuacaovara']//li[{index}]//a", By.XPATH)
         number_capacity = capacity.get_property('title')
         capacity.click()
-
-        print(f"Acessando lotação {number_capacity}\n")
-
-        logging.info(f"Acessando lotação {number_capacity}\n")
-        #register_log(f"Acessando lotação {number_capacity}\n")
 
         return number_capacity
 
     except Exception as err:
-        logging.error(f'Erro ao obter lotação! {err}')
+        logging.error(f'Erro ao obter lotação: {err}')
         exit()
 
 def get_current_day():
     return str(date.today())
 
 def get_directory():
-    data = get_current_day()
-    return './logging/' + data
+    day = get_current_day()
+    return './logging/' + day

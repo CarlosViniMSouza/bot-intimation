@@ -6,6 +6,8 @@ from os import makedirs, listdir, rename, path, remove
 from src.frames import enter_frame
 from src.getters import get_directory, get_current_day
 
+### FILES ###
+
 def register_log(msg):
     CURRENT_DAY = get_current_day()
     FILE = CURRENT_DAY + ' - log_operacao.txt'
@@ -57,7 +59,7 @@ def remove_downloads():
             logging.info('Arquivos excluídos com sucesso!')
 
     except Exception as err:
-        logging.error(f'Erro ao excluir arquivos! {err}')
+        logging.error(f'Erro ao excluir arquivos: {err}')
         exit()
 
 def delete_files():

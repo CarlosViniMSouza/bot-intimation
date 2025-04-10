@@ -1,6 +1,7 @@
-### EMAIL ###
 from botcity.plugins.email import BotEmailPlugin
 from src.getters import get_current_day
+
+### EMAIL ###
 
 def send_email_attachment():
     email = BotEmailPlugin()

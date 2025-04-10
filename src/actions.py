@@ -1,4 +1,3 @@
-### ACTIONS ###
 import logging
 from botcity.web import By
 from src.config import bot
@@ -11,19 +10,16 @@ logging.basicConfig(
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
 
+### ACTIONS ###
+
 def open_projudi():
     HML = "http://10.47.76.126:8082/projudi/"
     # HML = "http://10.47.60.136:8082/projudi/"
     # PROD = "https://projudi.tjam.jus.br/projudi/"
 
-    #bot.headless = False
-    #bot.browser = Browser.EDGE
-    #bot.driver_path = EdgeChromiumDriverManager().install()
+    bot.headless = False
     bot.browse(HML)
     bot.maximize_window()
-
-def stopped_browser():
-    bot.stop_browser()
 
 def click_element(selector, by=By.ID):
     try:
@@ -31,14 +27,10 @@ def click_element(selector, by=By.ID):
         found = False
 
         while not found and attempts > 0:
-            obj = bot.find_element(
-                selector,
-                by,
-                ensure_clickable=True
-            )
+            element = bot.find_element(selector, by, ensure_clickable=True)
 
-            if obj:
-                obj.click()
+            if element:
+                element.click()
                 found = True
             else:
                 attempts -= 1
@@ -57,5 +49,5 @@ def swith_capacities():
         enter_iframeId()
 
     except Exception as err:
-        logging.error(f'Erro ao alternar lotação! {err}')
+        logging.error(f'Erro ao alternar lotação: {err}')
         exit()

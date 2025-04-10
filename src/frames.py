@@ -2,6 +2,8 @@ from botcity.web import By
 from src.config import bot
 from src.getters import get_field
 
+### FRAMES ###
+
 def enter_frame():
     frame = get_field('mainFrame')
     bot.enter_iframe(frame)

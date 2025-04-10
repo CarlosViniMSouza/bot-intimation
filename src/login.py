@@ -1,11 +1,10 @@
-### LOGIN ###
 import logging
 from os import environ
-from botcity.web import By
-from src.config import bot
 
+from botcity.web import By
+
+from src.config import bot
 from src.frames import enter_frame, quit_frame
-from src.files import register_log
 from src.actions import click_element
 
 logging.basicConfig(
@@ -14,6 +13,8 @@ logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s - %(levelname)s - %(message)s"
 )
+
+### LOGIN ###
 
 def login():
     try:
@@ -31,28 +32,16 @@ def login():
         quit_frame()
 
     except Exception as err:
-        logging.error(f'Erro ao efetuar login! {err}')
-        register_log(f'Erro ao efetuar login! {err}')
-
+        logging.error(f'Erro ao efetuar login: {err}')
         exit()
 
 def error_login():
     try:
-        bot.find_element(
-            'errorMessages',
-            By.ID,
-            waiting_time=2000
-        ).click()
-
+        bot.find_element('errorMessages', By.ID, waiting_time=2000).click()
         logging.error('Erro ao efetuar login!')
-        register_log('Erro ao efetuar login!')
 
         return True
 
-    except Exception as err:
-        print(err)
-
+    except:
         logging.info('Login efetuado com sucesso!')
-        register_log('Login efetuado com sucesso!')
-
         return False
